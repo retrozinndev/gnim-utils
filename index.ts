@@ -274,3 +274,20 @@ export function construct<Class extends object>(klass: Class, props: Record<stri
 
     return subs;
 }
+
+/** works the same as connecting to a signal of the gobject, but
+* it's disposed as soon as the current scope is disposed. */
+export function createScopedConnection<
+    GObj extends GObject.Object, 
+    Signals extends GObj["$signals"],
+    Signal extends keyof Signals
+>(
+    gobj: GObj,
+    signal: Signal,
+    callback: Signals[Signal]
+): void {
+    const scope = getScope();
+    const id = gobj.connect(signal as string, callback as () => void);
+
+    scope.onCleanup(() => gobj.disconnect(id));
+}
