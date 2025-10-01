@@ -1,27 +1,16 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig.json",
+  "$schema": "https://www.schemastore.org/tsconfig.json",
   "compilerOptions": {
-    "module": "es2022",
-    "target": "es2020",
-    "types": [],
-    "lib": ["ES2022"],
-    "sourceMap": false,
-    "moduleResolution": "bundler",
-    "declaration": true,
-    "declarationMap": false,
-    "experimentalDecorators": false,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
+    "target": "ES2020",
+    "module": "ES2022",
+    "lib": ["ES2024"],
     "strict": true,
+    "types": [
+        "./@types/gi.d.ts"
+    ],
+    "moduleResolution": "bundler",
+    "skipLibCheck": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "gnim/gtk4",
-    "verbatimModuleSyntax": true,
-    "isolatedModules": true,
-    "noUncheckedSideEffectImports": true,
-    "moduleDetection": "force",
-    "skipLibCheck": true
-  },
-  "include": [
-      "./index.ts"
-  ]
+    "jsxImportSource": "gnim/gtk4"
+  }
 }
