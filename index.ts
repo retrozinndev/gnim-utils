@@ -7,7 +7,6 @@ type ExcludedGnimNodeTypes = undefined | null | boolean | string | number;
 /** equivalent type for a Node in gnim. use this as the children prop type in a widget */
 export type JSXNode = JSX.Element | Array<JSX.Element|ExcludedGnimNodeTypes> | ExcludedGnimNodeTypes;
 
-
 /** subscribes to an accessor, with the extra of when
 * the scope is disposed, the subscription is also disposed */
 export function createSubscription<T = any>(
@@ -279,15 +278,16 @@ export function construct<Class extends object>(klass: Class, props: Record<stri
 * it's disposed as soon as the current scope is disposed. */
 export function createScopedConnection<
     GObj extends GObject.Object, 
-    Signals extends GObj["$signals"],
-    Signal extends keyof Signals
+    Signal extends keyof GObj["$signals"]
 >(
     gobj: GObj,
     signal: Signal,
-    callback: Signals[Signal]
+    callback: GObj["$signals"][Signal]
 ): void {
     const scope = getScope();
-    const id = gobj.connect(signal as string, callback as () => void);
+    const id = gobj.connect(signal as string, (_, ...args) => 
+        (callback as Function)(...args)
+    );
 
     scope.onCleanup(() => gobj.disconnect(id));
 }
