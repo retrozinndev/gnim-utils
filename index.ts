@@ -1,11 +1,9 @@
-import { Accessor, For, getScope, With } from "gnim";
+import { Accessor, For, getScope, Node, With } from "gnim";
 import GObject from "gnim/gobject";
 
 
-type ExcludedGnimNodeTypes = undefined | null | boolean | string | number;
-
-/** equivalent type for a Node in gnim. use this as the children prop type in a widget */
-export type JSXNode = JSX.Element | Array<JSX.Element|ExcludedGnimNodeTypes> | ExcludedGnimNodeTypes;
+/** re-exported gnim's jsx node type */
+export type JSXNode = Node;
 
 /** subscribes to an accessor, with the extra of when
 * the scope is disposed, the subscription is also disposed */
