@@ -162,6 +162,9 @@ export function createSecureAccessorBinding<
             notify!();
             return;
         }
+
+        gobj = newBase;
+        notify!();
     });
 
     const accessor = new Accessor<T[Prop]|Default>(
