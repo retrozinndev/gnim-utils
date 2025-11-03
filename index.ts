@@ -46,7 +46,7 @@ export function toBoolean(variable: any|Array<any>|Accessor<Array<any>|any>): bo
 export function createSecureBinding<
     GObj extends GObject.Object, 
     Prop extends keyof GObj,
-    Returns extends unknown|undefined
+    Returns extends unknown
 >(
     gobj: GObj,
     prop: Prop,
@@ -105,6 +105,9 @@ export function createAccessorBinding<
             notify!();
             return;
         }
+
+        gobj = newBase;
+        notify!();
     });
 
     const accessor = new Accessor<T[Prop]>(
