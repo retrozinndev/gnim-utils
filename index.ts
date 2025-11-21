@@ -152,11 +152,11 @@ export function createSecureAccessorBinding<
     Prop extends keyof T = keyof T,
     Default = any
 >(
-    baseObject: Accessor<T>, 
+    baseObject: Accessor<NullableT>, 
     prop: Prop,
     defaultValue: Default
 ): Accessor<T[Prop]|Default> {
-    let gobj: T|undefined = baseObject.get();
+    let gobj: NullableT|undefined|null = baseObject.get();
     let notify: () => void;
 
     const baseSub = baseObject.subscribe(() => {
@@ -173,7 +173,7 @@ export function createSecureAccessorBinding<
     });
 
     const accessor = new Accessor<T[Prop]|Default>(
-        () => gobj ? gobj[prop] : defaultValue,
+        () => gobj ? (gobj as T)[prop] : defaultValue,
         (notifyFun) => {
             notify = notifyFun;
 
