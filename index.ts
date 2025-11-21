@@ -44,8 +44,9 @@ export function toBoolean(variable: any|Array<any>|Accessor<Array<any>|any>): bo
 * the gobject is disposed/destroyed, return the default value.
 * the property is removed, return the default value */
 export function createSecureBinding<
-    GObj extends GObject.Object, 
-    Prop extends keyof NonNullable<GObj>,
+    NullableGObj extends GObject.Object|null|undefined, 
+    GObj extends NonNullable<NullableGObj>, 
+    Prop extends keyof GObj,
     Returns extends unknown
 >(
     gobj: GObj,
@@ -146,8 +147,9 @@ export function createAccessorBinding<
 * object or the default value.
 * */
 export function createSecureAccessorBinding<
-    T extends GObject.Object = GObject.Object,
-    Prop extends keyof NonNullable<T> = keyof NonNullable<T>,
+    NullableT extends GObject.Object|null|undefined = GObject.Object,
+    T extends NonNullable<NullableT> = NonNullable<NullableT>,
+    Prop extends keyof T = keyof T,
     Default = any
 >(
     baseObject: Accessor<T>, 
