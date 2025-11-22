@@ -44,18 +44,19 @@ export function toBoolean(variable: any|Array<any>|Accessor<Array<any>|any>): bo
 * the gobject is disposed/destroyed, return the default value.
 * the property is removed, return the default value */
 export function createSecureBinding<
-    NullableGObj extends GObject.Object|null|undefined, 
-    GObj extends NonNullable<NullableGObj>, 
+    GObj extends GObject.Object, 
     Prop extends keyof GObj,
     Returns extends unknown
 >(
     gobj: GObj,
     prop: Prop,
     defaultValue: Returns
-): Accessor<GObj[Prop]|Returns> {
-    const get = () => gobj && Object.hasOwn(gobj, prop) ? gobj[prop] : defaultValue;
+): Accessor<NonNullable<GObj[Prop]>|Returns> {
+    const get = () => gobj && Object.hasOwn(gobj, prop) ? 
+        gobj[prop] as NonNullable<GObj[Prop]>
+    : defaultValue;
 
-    return new Accessor<GObj[Prop]|Returns>(
+    return new Accessor<NonNullable<GObj[Prop]>|Returns>(
         get,
         (notify) => {
             const gobjectProp = (prop as string).replace(/[A-Z]/g, (s) => `-${s.toLowerCase()}`);
@@ -155,7 +156,7 @@ export function createSecureAccessorBinding<
     baseObject: Accessor<NullableT>, 
     prop: Prop,
     defaultValue: Default
-): Accessor<T[Prop]|Default> {
+): Accessor<NonNullable<T[Prop]>|Default> {
     let gobj: NullableT|undefined|null = baseObject.get();
     let notify: () => void;
 
@@ -172,8 +173,8 @@ export function createSecureAccessorBinding<
         notify!();
     });
 
-    const accessor = new Accessor<T[Prop]|Default>(
-        () => gobj ? (gobj as T)[prop] : defaultValue,
+    const accessor = new Accessor<NonNullable<T[Prop]>|Default>(
+        () => gobj ? (gobj as T)[prop] as NonNullable<T[Prop]> : defaultValue,
         (notifyFun) => {
             notify = notifyFun;
 
