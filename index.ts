@@ -5,6 +5,18 @@ import GObject from "gnim/gobject";
 /** re-exported gnim's jsx node type */
 export type JSXNode = Node;
 
+function snakeify(str: string): string {
+    return str
+        .replace(/[A-Z]/g, (s) => `_${s.toLowerCase()}`)
+        .replace(/\-/g, "_").toLowerCase();
+}
+
+function kebabify(str: string): string {
+    return str
+        .replace(/[A-Z]/g, (s) => `-${s.toLowerCase()}`)
+        .replace(/_/g, '-').toLowerCase();
+}
+
 /** subscribes to an accessor, with the extra of when
 * the scope is disposed, the subscription is also disposed */
 export function createSubscription<T = any>(
@@ -32,6 +44,12 @@ export function toBoolean(variable: any|Array<any>|Accessor<Array<any>|any>): bo
     : Boolean(variable);
 }
 
+/** checks if gobject has a getter for the specified property */
+function hasGetter(gobj: GObject.Object, prop: string): boolean {
+    return (typeof gobj[`get_${snakeify(prop as string)}` as keyof typeof gobj] === "function" 
+        || Object.hasOwn(gobj, prop));
+}
+
 
 /** securely bind to a GObject property. works the same as gnim's createBinding, but
 * allows setting a value to return when things go wrong.
@@ -52,14 +70,18 @@ export function createSecureBinding<
     prop: Prop,
     defaultValue: Returns
 ): Accessor<NonNullable<GObj[Prop]>|Returns> {
-    const get = () => gobj && Object.hasOwn(gobj, prop) ? 
-        gobj[prop] as NonNullable<GObj[Prop]>
+    const get = () => gobj ? 
+        hasGetter(gobj, prop as string) ?
+            (gobj[
+                `get_${snakeify(prop as string)}` as keyof typeof gobj
+            ] as Function)()
+        : gobj[prop] as NonNullable<GObj[Prop]>
     : defaultValue;
 
     return new Accessor<NonNullable<GObj[Prop]>|Returns>(
         get,
         (notify) => {
-            const gobjectProp = (prop as string).replace(/[A-Z]/g, (s) => `-${s.toLowerCase()}`);
+            const gobjectProp = kebabify(prop as string);
             const id = gobj.connect(`notify::${gobjectProp}`, () => notify());
             return () => {
                 try {
@@ -118,12 +140,12 @@ export function createAccessorBinding<
             notify = notifyFun;
 
             const id = gobj?.connect(
-                `notify::${(prop as string).replace(/[A-Z]/g, (s) => `-${s.toLowerCase()}`)}`,
+                `notify::${kebabify(prop as string)}`,
                 () => notify()
             );
 
             return () => {
-                id && gobj?.disconnect(id);
+                id !== undefined && gobj?.disconnect(id);
                 baseSub();
             }
         }
